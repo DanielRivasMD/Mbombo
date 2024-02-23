@@ -1,4 +1,4 @@
-module github.com/Mbombo
+module github.com/DanielRivasMD/Mbombo
 
 go 1.22.0
 
