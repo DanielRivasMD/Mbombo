@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 danielrivasmd@gmail.com
+Copyright © 2024 Daniel Rivas <danielrivasmd@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ var ()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// rootCmd
 var rootCmd = &cobra.Command{
 	Use:   "mbombo",
 	Short: "",
@@ -63,6 +64,7 @@ with built-in and accessible documentation.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// execute
 func Execute() {
 	ε := rootCmd.Execute()
 	if ε != nil {
@@ -73,6 +75,7 @@ func Execute() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// initialize config
 func initializeConfig(κ *cobra.Command, configPath string, configName string) error {
 
 	// initialize viper
@@ -82,18 +85,18 @@ func initializeConfig(κ *cobra.Command, configPath string, configName string) e
 	ω.AddConfigPath(configPath)
 	ω.SetConfigName(configName)
 
-	// read the config file
+	// read config file
 	ε := ω.ReadInConfig()
 	if ε != nil {
-		// okay if there isn't a config file
+		// okay if no config file
 		_, ϙ := ε.(viper.ConfigFileNotFoundError)
 		if !ϙ {
-			// return an error if we cannot parse the config file
+			// error if not parse config file
 			return ε
 		}
 	}
 
-	// bind flags to viper
+	// bind flags viper
 	bindFlags(κ, ω)
 
 	return nil
@@ -101,21 +104,22 @@ func initializeConfig(κ *cobra.Command, configPath string, configName string) e
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// bind each cobra flag to its associated viper configuration
+// bind each cobra flag viper configuration
 func bindFlags(κ *cobra.Command, ω *viper.Viper) {
 
 	κ.Flags().VisitAll(func(σ *pflag.Flag) {
 
-		// apply the viper config value to the flag when the flag is not set and viper has a value
 		if !σ.Changed && ω.IsSet(σ.Name) {
 			ν := ω.Get(σ.Name)
 			κ.Flags().Set(σ.Name, fmt.Sprintf("%v", ν))
+		// apply viper config value flag
 		}
 	})
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// execute prior main
 func init() {
 
 	// persistent flags

@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 danielrivasmd@gmail.com
+Copyright © 2024 Daniel Rivas <danielrivasmd@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import "github.com/DanielRivasMD/Mbombo/cmd"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// entry point
 func main() {
 	cmd.Execute()
 }
