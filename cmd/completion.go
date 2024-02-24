@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 danielrivasmd@gmail.com
+Copyright © 2024 Daniel Rivas <danielrivasmd@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -29,56 +30,56 @@ var ()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// completionCmd represents the completion command
+// completionCmd
 var completionCmd = &cobra.Command{
 	Use:    "completion [bash|zsh|fish|powershell]",
 	Hidden: true,
 	Short:  "Generate completion script.",
-	Long: `To load completions:
+	Long: fmt.Sprintf(`To load completions:
 
 Bash:
 
-$ source <(mbombo completion bash)
+  $ source <(%[1]s completion bash)
 
-# To load completions for each session, execute once:
-Linux:
- $ mbombo completion bash > /etc/bash_completion.d/mbombo
-MacOS:
- $ mbombo completion bash > /usr/local/etc/bash_completion.d/mbombo
+  # To load completions for each session, execute once:
+  # Linux:
+  $ %[1]s completion bash > /etc/bash_completion.d/%[1]s
+  # macOS:
+  $ %[1]s completion bash > $(brew --prefix)/etc/bash_completion.d/%[1]s
 
 Zsh:
 
-# If shell completion is not already enabled in your environment you will need
-# to enable it.  You can execute the following once:
+  # If shell completion is not already enabled in your environment,
+  # you will need to enable it.  You can execute the following once:
 
-$ echo "autoload -U compinit; compinit" >> ~/.zshrc
+  $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
-# To load completions for each session, execute once:
-$ mbombo completion zsh > "${fpath[1]}/_mbombo"
+  # To load completions for each session, execute once:
+  $ %[1]s completion zsh > "${fpath[1]}/_%[1]s"
 
-# You will need to start a new shell for this setup to take effect.
+  # You will need to start a new shell for this setup to take effect.
 
-Fish:
+fish:
 
-$ mbombo completion fish | source
+  $ %[1]s completion fish | source
 
-# To load completions for each session, execute once:
-$ mbombo completion fish > ~/.config/fish/completions/mbombo.fish
+  # To load completions for each session, execute once:
+  $ %[1]s completion fish > ~/.config/fish/completions/%[1]s.fish
 
-Powershell:
+PowerShell:
 
-PS> mbombo completion powershell | Out-String | Invoke-Expression
+  PS> %[1]s completion powershell | Out-String | Invoke-Expression
 
-# To load completions for every new session, run:
-PS> mbombo completion powershell > mbombo.ps1
-# and source this file from your powershell profile.
-`,
+  # To load completions for every new session, run:
+  PS> %[1]s completion powershell > %[1]s.ps1
+  # and source this file from your PowerShell profile.
+`, rootCmd.Name()),
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
-	Args:                  cobra.ExactValidArgs(1),
+	Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -91,13 +92,14 @@ PS> mbombo completion powershell > mbombo.ps1
 		case "fish":
 			κ.Root().GenFishCompletion(os.Stdout, true)
 		case "powershell":
-			κ.Root().GenPowerShellCompletion(os.Stdout)
+			κ.Root().GenPowerShellCompletionWithDesc(os.Stdout)
 		}
 	},
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// execute prior main
 func init() {
 	rootCmd.AddCommand(completionCmd)
 }
