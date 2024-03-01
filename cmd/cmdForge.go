@@ -32,13 +32,16 @@ var (
 var forgeCmd = &cobra.Command{
 	Use:   "forge",
 	Short: ".",
-	Long: `.`,
+	Long:  `.`,
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Run: func(cmd *cobra.Command, args []string) {
 		// forge file
-		catFiles(path, out, files)
+		params := copyCR(path, out)
+		params.files = files
+		params.reps = repsForge() // automatic binding cli flags
+		catFiles(params)
 	},
 }
 
