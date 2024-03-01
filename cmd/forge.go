@@ -17,8 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
@@ -33,23 +31,14 @@ var (
 
 var forgeCmd = &cobra.Command{
 	Use:   "forge",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: ".",
+	Long: `.`,
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Run: func(cmd *cobra.Command, args []string) {
-
-		// check whether file exists to avoid appending
-		if fileExist(outProduct) {
-			os.Remove(outProduct)
-		}
-
+		// forge file
+		catFiles(path, out, files)
 	},
 }
 
@@ -58,7 +47,7 @@ to quickly create a Cobra application.`,
 func init() {
 	rootCmd.AddCommand(forgeCmd)
 
-	// persistent flags
+	// flags
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
