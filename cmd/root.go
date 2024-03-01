@@ -31,9 +31,11 @@ import (
 
 // declarations
 var (
-	out string
+	out   string
+	path  string
 	files []string
-	path string
+	old   []string
+	new   []string
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,8 +125,10 @@ func init() {
 	rootCmd.MarkFlagRequired("path")
 	rootCmd.PersistentFlags().StringArrayVarP(&files, "files", "f", []string{}, "These items will create...")
 	rootCmd.MarkFlagRequired("files")
-	rootCmd.PersistentFlags().StringVarP(&out, "out", "o", "", "Where will the forge be delivered?")
+	rootCmd.PersistentFlags().StringVarP(&out, "out", "", "", "Where will the forge be delivered?")
 	rootCmd.MarkFlagRequired("out")
+	rootCmd.PersistentFlags().StringArrayVarP(&old, "old", "o", []string{}, "Value to replace")
+	rootCmd.PersistentFlags().StringArrayVarP(&new, "new", "n", []string{}, "Value replacement")
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
