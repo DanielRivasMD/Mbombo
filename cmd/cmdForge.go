@@ -31,8 +31,9 @@ var (
 
 var forgeCmd = &cobra.Command{
 	Use:   "forge",
-	Short: ".",
-	Long:  `.`,
+	Short: "Forge products.",
+	Long:  `Forge by defining the materials & the destination
+Moreover, indicate pieces to replace.`,
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 

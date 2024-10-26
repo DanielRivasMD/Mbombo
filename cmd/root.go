@@ -43,7 +43,6 @@ var (
 // rootCmd
 var rootCmd = &cobra.Command{
 	Use:   "mbombo",
-	Short: "",
 	Long: chalk.Green.Color("Daniel Rivas <danielrivasmd@gmail.com>") + `
 
 ` + chalk.Green.Color("Mbombo") + chalk.Blue.Color(` will forge a unifed product.
