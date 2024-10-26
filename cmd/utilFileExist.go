@@ -12,11 +12,11 @@ import (
 
 // check if file exists & not directory
 func fileExist(ƒ string) bool {
-	info, ε := os.Stat(ƒ)
+	ι, ε := os.Stat(ƒ)
 	if os.IsNotExist(ε) {
 		return false
 	}
-	return !info.IsDir()
+	return !ι.IsDir()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -19,8 +19,8 @@ func repsForge() []rep {
 
 	// preallocate
 	reps := make([]rep, len(old))
-	for i, _ := range old {
-		reps[i] = rep{old: old[i], new: new[i]}
+	for į := range old {
+		reps[į] = rep{old: old[į], new: new[į]}
 	}
 	return reps
 }
