@@ -19,6 +19,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/DanielRivasMD/domovoi"
 	"github.com/spf13/cobra"
 	"github.com/ttacon/chalk"
 )
@@ -26,27 +27,35 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // declarations
-var ()
+var (
+	iden = chalk.Yellow.Color("Mbombo") + `, also called ` + chalk.Yellow.Color("Bumba") + `, is the creator god in the religion
+and mythology of the ` + chalk.Cyan.Color("Kuba") + ` people of ` + chalk.Green.Color("Central Africa") + ` in the area
+that is now known as Democratic Republic of the Congo
+
+In the Mbombo creation myth, ` + chalk.Yellow.Color("Mbombo") + ` was a giant in form and
+white in color. The myth describes the creation of the universe
+from nothing`
+)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // identityCmd
 var identityCmd = &cobra.Command{
 	Use:     "identity",
-	Short:   `Reveal ` + chalk.Yellow.Color("identity"),
-	Long:    `Reveal ` + chalk.Yellow.Color("identity"),
+	Short:   `Reveal identity`,
+	Long:    `Reveal identity`,
 	Example: ``,
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Run: func(κ *cobra.Command, args []string) {
-		fmt.Println(chalk.Yellow.Color("Mbombo") + `, also called ` + chalk.Yellow.Color("Bumba") + `, is the creator god in the religion
-and mythology of the ` + chalk.Cyan.Color("Kuba") + ` people of ` + chalk.Green.Color("Central Africa") + ` in the area
-that is now known as Democratic Republic of the Congo.
+		domovoi.LineBreaks()
+		fmt.Println()
 
-In the Mbombo creation myth, ` + chalk.Yellow.Color("Mbombo") + ` was a giant in form and
-white in color. The myth describes the creation of the universe
-from nothing.`)
+		fmt.Println(iden)
+
+		domovoi.LineBreaks()
+		fmt.Println()
 
 	},
 }
