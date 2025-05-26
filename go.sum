@@ -1,3 +1,7 @@
+github.com/DanielRivasMD/domovoi v0.0.0-20250523133919-940e8593d874 h1:HJG6e5DhxIISPUWC1F8k9elcMvDajxPxCMIe7SaqhYw=
+github.com/DanielRivasMD/domovoi v0.0.0-20250523133919-940e8593d874/go.mod h1:AfBfXSLpb7L0u2WqMs/uxEOTzTshRR6//UZgyJ1M72w=
+github.com/DanielRivasMD/horus v0.0.0-20250525113757-e56656ee516a h1:4WpAGG+jkZ666CE/esj4PZtM8NHn241VWpf5vUzOOW4=
+github.com/DanielRivasMD/horus v0.0.0-20250525113757-e56656ee516a/go.mod h1:RxifFjF4J7o+TTS00sIgeWwbvZyQ57L4D2xTlEJle5Y=
 github.com/atrox/homedir v1.0.0 h1:99Vwk+XECZTDLaAPeMj7vF9JMNcVarWddqPeyDzJT5E=
 github.com/atrox/homedir v1.0.0/go.mod h1:ZKVEIDNKscX8qV1TyrwLP+ayjv3XQO7wbVmc5EW00A8=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
