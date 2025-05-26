@@ -4,7 +4,7 @@ package cmd
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// replace values
+// rep defines a replacement structure for old and new values.
 type rep struct {
 	old string
 	new string
