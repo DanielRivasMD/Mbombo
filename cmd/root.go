@@ -126,8 +126,8 @@ func init() {
 	rootCmd.MarkFlagRequired("files")
 	rootCmd.PersistentFlags().StringVarP(&out, "out", "", "", "Where will the forge be delivered?")
 	rootCmd.MarkFlagRequired("out")
-	rootCmd.PersistentFlags().StringArrayVarP(&old, "old", "o", []string{}, "Value to replace")
-	rootCmd.PersistentFlags().StringArrayVarP(&new, "new", "n", []string{}, "Value replacement")
+	rootCmd.PersistentFlags().StringArrayVarP(&old, "old", "o", []string{}, "Value to replace.")
+	rootCmd.PersistentFlags().StringArrayVarP(&new, "new", "n", []string{}, "Value replacement.")
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
