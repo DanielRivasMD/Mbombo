@@ -41,6 +41,7 @@ Moreover, indicate pieces to replace.`,
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// TODO: pass boolean for domovoi actions
 	Run: func(cmd *cobra.Command, args []string) {
 		// forge file
 		params := copyCR(path, out)

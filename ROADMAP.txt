@@ -1,0 +1,6 @@
+- update commands
+
+==================================================
+cmd/cmdForge.go
+  line 44     TODO   pass boolean for domovoi actions
+==================================================
