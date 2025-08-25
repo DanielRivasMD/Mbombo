@@ -23,7 +23,7 @@ func catFiles(params paramsCR) error {
 	exists, err := domovoi.FileExist(params.dest, func(path string) (bool, error) {
 		// No action required if the file is missing.
 		return false, nil
-	}, true)
+	}, verbose)
 	if err != nil {
 		return horus.PropagateErr(
 			"catFiles",
