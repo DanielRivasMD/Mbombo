@@ -16,53 +16,52 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 package cmd
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 import (
-	"log"
 	"os"
 
-	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// declarations
 var (
 	outProduct string
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var forgeCmd = &cobra.Command{
-	Use:   "forge",
-	Short: "Forge products.",
-	Long: `Forge by defining the materials & the destination
-Moreover, indicate pieces to replace.`,
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// TODO: pass boolean for domovoi actions
-	Run: func(cmd *cobra.Command, args []string) {
-		// forge file
-		params := copyCR(path, out)
-		params.files = files
-		params.reps = repsForge() // automatic binding cli flags
-
-		// Call catFiles and capture any error.
-		if err := catFiles(params); err != nil {
-			// Log the error in JSON format for better debugging.
-			log.Printf("Error during catFiles execution: %s", horus.FormatError(err, horus.JSONFormatter))
-			os.Exit(1)
-		}
-	},
+func init() {
+	rootCmd.AddCommand(forgeCmd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func init() {
-	rootCmd.AddCommand(forgeCmd)
+var forgeCmd = &cobra.Command{
+	Use:     "forge",
+	Short:   "Forge products",
+	Long:    helpForge,
+	Example: exampleForge,
 
-	// flags
+	Run: runForge,
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: pass boolean for domovoi actions
+func runForge(cmd *cobra.Command, args []string) {
+	// forge file
+	params := copyCR(path, out)
+	params.files = files
+	params.reps = repsForge() // automatic binding cli flags
+
+	// Call catFiles and capture any error.
+	if err := catFiles(params); err != nil {
+		// Log the error in JSON format for better debugging.
+		// log.Printf("Error during catFiles execution: %s", horus.JSONFormatter(err))
+		os.Exit(1)
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
