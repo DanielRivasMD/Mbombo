@@ -17,19 +17,30 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"os"
-
+	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-	"github.com/ttacon/chalk"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// declarations
+var rootCmd = &cobra.Command{
+	Use:     "mbombo",
+	Long:    helpRoot,
+	Example: exampleRoot,
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func Execute() {
+	horus.CheckErr(rootCmd.Execute())
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var (
+	verbose bool
+)
+
 var (
 	out   string
 	path  string
@@ -40,86 +51,9 @@ var (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// rootCmd
-var rootCmd = &cobra.Command{
-	Use:   "mbombo",
-	Long: chalk.Green.Color("Daniel Rivas <danielrivasmd@gmail.com>") + `
-
-` + chalk.Green.Color("Mbombo") + chalk.Blue.Color(` will forge a unifed product.
-
-
-`) + chalk.Green.Color("Mbombo") + ` creates a convenient command line interphase
-with built-in and accessible documentation.
-`,
-
-	Example: `
-` + chalk.Cyan.Color("mbombo") + ` help`,
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// execute
-func Execute() {
-	ε := rootCmd.Execute()
-	if ε != nil {
-		log.Fatal(ε)
-		os.Exit(1)
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// initialize config
-func initializeConfig(κ *cobra.Command, configPath string, configName string) error {
-
-	// initialize viper
-	ω := viper.New()
-
-	// collect config path & file from persistent flags
-	ω.AddConfigPath(configPath)
-	ω.SetConfigName(configName)
-
-	// read config file
-	ε := ω.ReadInConfig()
-	if ε != nil {
-		// okay if no config file
-		_, ϙ := ε.(viper.ConfigFileNotFoundError)
-		if !ϙ {
-			// error if not parse config file
-			return ε
-		}
-	}
-
-	// bind flags viper
-	bindFlags(κ, ω)
-
-	return nil
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// bind each cobra flag viper configuration
-func bindFlags(κ *cobra.Command, ω *viper.Viper) {
-
-	κ.Flags().VisitAll(func(σ *pflag.Flag) {
-
-		if !σ.Changed && ω.IsSet(σ.Name) {
-			ν := ω.Get(σ.Name)
-			κ.Flags().Set(σ.Name, fmt.Sprintf("%v", ν))
-			// apply viper config value flag
-		}
-	})
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// execute prior main
 func init() {
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose diagnostics")
 
-	// persistent flags
 	rootCmd.PersistentFlags().StringVarP(&path, "path", "p", "", "Where are the itmes to be forged?")
 	rootCmd.MarkFlagRequired("path")
 	rootCmd.PersistentFlags().StringArrayVarP(&files, "files", "f", []string{}, "These items will create...")
