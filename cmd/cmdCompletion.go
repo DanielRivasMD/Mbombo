@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Daniel Rivas <danielrivasmd@gmail.com>
+Copyright © YEAR AUTHOR EMAIL
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,26 +16,40 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 package cmd
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 import (
 	"fmt"
 	"os"
 
+	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
+	"github.com/ttacon/chalk"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// declarations
-var ()
+var completionCmd = &cobra.Command{
+	Use:    "completion " + chalk.Dim.TextStyle(chalk.Italic.TextStyle("[bash|zsh|fish|powershell]")),
+	Hidden: true,
+	Long:   helpCompletion,
+
+	DisableFlagsInUseLine: true,
+	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
+	Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+
+	Run: runCompletion,
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// completionCmd
-var completionCmd = &cobra.Command{
-	Use:    "completion [bash|zsh|fish|powershell]",
-	Hidden: true,
-	Short:  "Generate completion script.",
-	Long: fmt.Sprintf(`To load completions:
+func init() {
+	rootCmd.AddCommand(completionCmd)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var helpCompletion = fmt.Sprintf(`To load completions:
 
 Bash:
 
@@ -50,7 +64,7 @@ Bash:
 Zsh:
 
   # If shell completion is not already enabled in your environment,
-  # you will need to enable it.  You can execute the following once:
+  # you will need to enable it. You can execute the following once:
 
   $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
@@ -73,35 +87,21 @@ PowerShell:
   # To load completions for every new session, run:
   PS> %[1]s completion powershell > %[1]s.ps1
   # and source this file from your PowerShell profile.
-`, rootCmd.Name()),
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	DisableFlagsInUseLine: true,
-	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
-	Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	Run: func(κ *cobra.Command, args []string) {
-		switch args[0] {
-		case "bash":
-			κ.Root().GenBashCompletion(os.Stdout)
-		case "zsh":
-			κ.Root().GenZshCompletion(os.Stdout)
-		case "fish":
-			κ.Root().GenFishCompletion(os.Stdout, true)
-		case "powershell":
-			κ.Root().GenPowerShellCompletionWithDesc(os.Stdout)
-		}
-	},
-}
+`, rootCmd.Name())
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// execute prior main
-func init() {
-	rootCmd.AddCommand(completionCmd)
+func runCompletion(cmd *cobra.Command, args []string) {
+	switch args[0] {
+	case "bash":
+		horus.CheckErr(cmd.Root().GenBashCompletion(os.Stdout))
+	case "zsh":
+		horus.CheckErr(cmd.Root().GenZshCompletion(os.Stdout))
+	case "fish":
+		horus.CheckErr(cmd.Root().GenFishCompletion(os.Stdout, true))
+	case "powershell":
+		horus.CheckErr(cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout))
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
