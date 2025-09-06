@@ -16,55 +16,42 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 package cmd
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 import (
 	"fmt"
 
-	"github.com/DanielRivasMD/domovoi"
 	"github.com/spf13/cobra"
-	"github.com/ttacon/chalk"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// declarations
-var (
-	iden = chalk.Yellow.Color("Mbombo") + `, also called ` + chalk.Yellow.Color("Bumba") + `, is the creator god in the religion
-and mythology of the ` + chalk.Cyan.Color("Kuba") + ` people of ` + chalk.Green.Color("Central Africa") + ` in the area
-that is now known as Democratic Republic of the Congo
-
-In the Mbombo creation myth, ` + chalk.Yellow.Color("Mbombo") + ` was a giant in form and
-white in color. The myth describes the creation of the universe
-from nothing`
-)
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// identityCmd
 var identityCmd = &cobra.Command{
 	Use:     "identity",
-	Short:   `Reveal identity`,
-	Long:    `Reveal identity`,
-	Example: ``,
+	Aliases: []string{"id"},
+	Hidden:  true,
+	Short:   `Reveal `,
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	Run: func(κ *cobra.Command, args []string) {
-		domovoi.LineBreaks()
-		fmt.Println()
-
-		fmt.Println(iden)
-
-		domovoi.LineBreaks()
-		fmt.Println()
-
-	},
+	Run: runIdentity,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// execute prior main
 func init() {
 	rootCmd.AddCommand(identityCmd)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func runIdentity(cmd *cobra.Command, args []string) {
+	// fmt.Println(chalk.White.Color("REPOSITORY:"))
+	fmt.Println(`Mbombo, also called Bumba, is the creator god in the religion
+and mythology of the Kuba people of Central Africa in the area
+that is now known as Democratic Republic of the Congo
+
+In the Mbombo creation myth, Mbombo was a giant in form and
+white in color. The myth describes the creation of the universe
+from nothing`)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
