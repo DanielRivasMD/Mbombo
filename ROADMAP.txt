@@ -1,8 +1,5 @@
-- review exectuion
 - update readme
 - add cmd multiple to multiple?; now `mbombo forge` multiple to one
 
 ==================================================
-cmd/cmdForge.go
-  line 107    TODO   update logging
 ==================================================
