@@ -100,16 +100,11 @@ var forgeCmd = &cobra.Command{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO: pass boolean for domovoi actions
 func runForge(cmd *cobra.Command, args []string) {
-	// forge file
-	// params := copyCR(options.In, options.Out)
-	// params.files = options.Files
-	// params.reps = repsForge() // automatic binding cli flags
-
 	// Call catFiles and capture any error.
 	if err := catFiles(options); err != nil {
 		// Log the error in JSON format for better debugging.
+		// TODO: update logging
 		// log.Printf("Error during catFiles execution: %s", horus.JSONFormatter(err))
 		os.Exit(1)
 	}

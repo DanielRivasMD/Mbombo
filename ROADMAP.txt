@@ -1,6 +1,8 @@
-- update commands
+- review exectuion
+- update readme
+- add cmd multiple to multiple?; now `mbombo forge` multiple to one
 
 ==================================================
 cmd/cmdForge.go
-  line 44     TODO   pass boolean for domovoi actions
+  line 107    TODO   update logging
 ==================================================
