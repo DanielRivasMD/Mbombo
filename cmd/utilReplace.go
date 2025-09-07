@@ -17,7 +17,7 @@ import (
 // replace applies the provided replacements on the content of the target file.
 // It opens the file for reading and writing, iterates through each line, applies the replacements,
 // and writes the modified content back into the file. Any errors are wrapped and propagated.
-func replace(target string, reps []rep) error {
+func replace(target string, replacements []replacement) error {
 	// Open the target file for reading.
 	fread, err := os.Open(target)
 	if err != nil {
@@ -53,8 +53,8 @@ func replace(target string, reps []rep) error {
 		line := scanner.Text()
 
 		// Apply each replacement.
-		for _, rep := range reps {
-			line = strings.Replace(line, rep.old, rep.new, -1)
+		for _, rep := range replacements {
+			line = strings.Replace(line, rep.Old, rep.New, -1)
 		}
 
 		// Append a newline.
