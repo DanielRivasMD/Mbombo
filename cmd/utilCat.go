@@ -22,7 +22,7 @@ func catFiles(options forgeOptions) error {
 
 	// Clean prior copying:
 	// Use an inline anonymous function for the NotFoundAction
-	exists, err := domovoi.FileExist(options.OutPath, func(path string) (bool, error) {
+	exists, err := domovoi.FileExist(options.outPath, func(path string) (bool, error) {
 		// No action required if the file is missing
 		return false, nil
 	}, verbose)
@@ -33,28 +33,28 @@ func catFiles(options forgeOptions) error {
 			"failed to check out file existence",
 			err,
 			map[string]any{
-				"outpath": options.OutPath,
+				"outpath": options.outPath,
 			},
 		)
 	}
 
 	// If the file exists, remove it
 	if exists {
-		if err := os.Remove(options.OutPath); err != nil {
+		if err := os.Remove(options.outPath); err != nil {
 			return horus.PropagateErr(
 				op,
 				"file_remove_error",
 				"failed to remove existing out file",
 				err,
 				map[string]any{
-					"outpath": options.OutPath,
+					"outpath": options.outPath,
 				},
 			)
 		}
 	}
 
 	// Open the out file for appending, creating it if necessary
-	fwrite, err := os.OpenFile(options.OutPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	fwrite, err := os.OpenFile(options.outPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return horus.PropagateErr(
 			op,
@@ -62,15 +62,15 @@ func catFiles(options forgeOptions) error {
 			"failed to open out file",
 			err,
 			map[string]any{
-				"outpath": options.OutPath,
+				"outpath": options.outPath,
 			},
 		)
 	}
 	defer fwrite.Close()
 
 	// Loop through each source file
-	for _, file := range options.Files {
-		srcPath := options.InPath + "/" + file
+	for _, file := range options.files {
+		srcPath := options.inPath + "/" + file
 		fread, err := os.Open(srcPath)
 		if err != nil {
 			return horus.PropagateErr(
@@ -120,21 +120,21 @@ func catFiles(options forgeOptions) error {
 				"failed to flush writer",
 				err,
 				map[string]any{
-					"outpath": options.OutPath,
+					"outpath": options.outPath,
 				},
 			)
 		}
 	}
 
 	// Perform replacements if provided
-	if err := replace(options.OutPath, replacePairs); err != nil {
+	if err := replace(options.outPath, replacePairs); err != nil {
 		return horus.PropagateErr(
 			op,
 			"replace_error",
 			"failed to perform replacements in the out file",
 			err,
 			map[string]any{
-				"outpath": options.OutPath,
+				"outpath": options.outPath,
 			},
 		)
 	}

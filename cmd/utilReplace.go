@@ -61,7 +61,7 @@ func replace(target string, replacements []replacement) error {
 
 		// Apply each replacement
 		for _, rep := range replacements {
-			line = strings.ReplaceAll(line, rep.Old, rep.New)
+			line = strings.ReplaceAll(line, rep.old, rep.new)
 		}
 
 		// Append a newline

@@ -34,14 +34,14 @@ var (
 )
 
 type forgeOptions struct {
-	InPath  string
-	OutPath string
-	Files   []string
+	inPath  string
+	outPath string
+	files   []string
 }
 
 type replacement struct {
-	New string
-	Old string
+	new string
+	old string
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ type replaceFlags []replacement
 func (r *replaceFlags) String() string {
 	parts := make([]string, len(*r))
 	for i, rep := range *r {
-		parts[i] = rep.Old + "=" + rep.New
+		parts[i] = rep.old + "=" + rep.new
 	}
 	return strings.Join(parts, ",")
 }
@@ -72,7 +72,7 @@ func (r *replaceFlags) Set(val string) error {
 			}),
 		)
 	}
-	*r = append(*r, replacement{Old: parts[0], New: parts[1]})
+	*r = append(*r, replacement{old: parts[0], new: parts[1]})
 	return nil
 }
 
@@ -85,9 +85,9 @@ func (r *replaceFlags) Type() string {
 func init() {
 	rootCmd.AddCommand(forgeCmd)
 
-	forgeCmd.Flags().StringVarP(&options.InPath, "in", "", "", "Where are the itmes to be forged?")
-	forgeCmd.Flags().StringVarP(&options.OutPath, "out", "", "", "Where will the forge be delivered?")
-	forgeCmd.Flags().StringArrayVarP(&options.Files, "files", "", []string{}, "These items will create...")
+	forgeCmd.Flags().StringVarP(&options.inPath, "in", "", "", "Where are the itmes to be forged?")
+	forgeCmd.Flags().StringVarP(&options.outPath, "out", "", "", "Where will the forge be delivered?")
+	forgeCmd.Flags().StringArrayVarP(&options.files, "files", "", []string{}, "These items will create...")
 	horus.CheckErr(forgeCmd.MarkFlagRequired("in"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
