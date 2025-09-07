@@ -13,14 +13,14 @@ import (
 // bind forge replace values
 func repsForge() []rep {
 	// sanity check
-	if len(old) != len(new) {
+	if len(options.Old) != len(options.New) {
 		log.Fatal("Replace values do not match")
 	}
 
 	// preallocate
-	reps := make([]rep, len(old))
-	for į := range old {
-		reps[į] = rep{old: old[į], new: new[į]}
+	reps := make([]rep, len(options.Old))
+	for į := range options.Old {
+		reps[į] = rep{old: options.Old[į], new: options.New[į]}
 	}
 	return reps
 }

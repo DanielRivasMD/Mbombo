@@ -43,27 +43,10 @@ var (
 	verbose bool
 )
 
-var (
-	out   string
-	path  string
-	files []string
-	old   []string
-	new   []string
-)
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose diagnostics")
-
-	rootCmd.PersistentFlags().StringVarP(&path, "path", "p", "", "Where are the itmes to be forged?")
-	rootCmd.MarkFlagRequired("path")
-	rootCmd.PersistentFlags().StringArrayVarP(&files, "files", "f", []string{}, "These items will create...")
-	rootCmd.MarkFlagRequired("files")
-	rootCmd.PersistentFlags().StringVarP(&out, "out", "", "", "Where will the forge be delivered?")
-	rootCmd.MarkFlagRequired("out")
-	rootCmd.PersistentFlags().StringArrayVarP(&old, "old", "o", []string{}, "Value to replace.")
-	rootCmd.PersistentFlags().StringArrayVarP(&new, "new", "n", []string{}, "Value replacement.")
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
