@@ -19,12 +19,10 @@ package cmd
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-	"os"
 	"strings"
 
 	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
-	"github.com/ttacon/chalk"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,21 +98,15 @@ var forgeCmd = &cobra.Command{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func runForge(cmd *cobra.Command, args []string) {
+	op := "mbombo.forge"
 
+	horus.CheckErr(
+		catFiles(options),
+		horus.WithOp(op),
+		horus.WithMessage("Error during catFiles execution"),
 		horus.WithExitCode(2),
 	)
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func runForge(cmd *cobra.Command, args []string) {
-	// Call catFiles and capture any error.
-	if err := catFiles(options); err != nil {
-		// Log the error in JSON format for better debugging.
-		// TODO: update logging
-		// log.Printf("Error during catFiles execution: %s", horus.JSONFormatter(err))
-		os.Exit(1)
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
