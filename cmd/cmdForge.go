@@ -80,6 +80,10 @@ func init() {
 	forgeCmd.Flags().StringVarP(&options.InPath, "in", "", "", "Where are the itmes to be forged?")
 	forgeCmd.Flags().StringVarP(&options.OutPath, "out", "", "", "Where will the forge be delivered?")
 	forgeCmd.Flags().StringArrayVarP(&options.Files, "files", "", []string{}, "These items will create...")
+	horus.CheckErr(forgeCmd.MarkFlagRequired("in"))
+	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
+	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
+
 	forgeCmd.Flags().VarP(&replacePairs, "replace", "r", "replacement in form old=new")
 }
 
@@ -91,37 +95,14 @@ var forgeCmd = &cobra.Command{
 	Long:    helpForge,
 	Example: exampleForge,
 
-	PreRun: preRunForge,
-	Run:    runForge,
+	Run: runForge,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func preRunForge(cmd *cobra.Command, args []string) {
-	horus.CheckEmpty(
-		options.InPath,
-		"",
-		horus.WithMessage("`--in` is required"),
-		horus.WithExitCode(2),
-		horus.WithFormatter(func(he *horus.Herror) string { return chalk.Red.Color(he.Message) }),
-	)
 
-	horus.CheckEmpty(
-		options.OutPath,
-		"",
-		horus.WithMessage("`--out` is required"),
 		horus.WithExitCode(2),
-		horus.WithFormatter(func(he *horus.Herror) string { return chalk.Red.Color(he.Message) }),
 	)
-
-	horus.CheckEmpty(
-		options.Files[0],
-		"",
-		horus.WithMessage("`--files` is required"),
-		horus.WithExitCode(2),
-		horus.WithFormatter(func(he *horus.Herror) string { return chalk.Red.Color(he.Message) }),
-	)
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
