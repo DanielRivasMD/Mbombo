@@ -28,6 +28,8 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: evaluate argument refactoring => one struct to capture all flags
+// TODO: evaluate reading toml config
 var (
 	options      forgeOptions
 	replacePairs replaceFlags
