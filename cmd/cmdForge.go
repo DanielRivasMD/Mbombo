@@ -19,9 +19,12 @@ package cmd
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
+	"bufio"
 	"errors"
+	"os"
 	"strings"
 
+	"github.com/DanielRivasMD/domovoi"
 	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
 )
@@ -42,8 +45,9 @@ type forgeOptions struct {
 }
 
 type replacement struct {
-	new string
-	old string
+	old  string // anchor or token
+	new  string // full replacement string
+	mode string // "token" or "line"
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +66,7 @@ func (r *replaceFlags) String() string {
 func (r *replaceFlags) Set(val string) error {
 	op := "flag.set"
 
+	// Always split key/value first
 	parts := strings.SplitN(val, "=", 2)
 	if len(parts) != 2 {
 		horus.CheckErr(
@@ -69,17 +74,49 @@ func (r *replaceFlags) Set(val string) error {
 			horus.WithOp(op),
 			horus.WithMessage("invalid replace pair"),
 			horus.WithExitCode(2),
-			horus.WithFormatter(func(he *horus.Herror) string {
-				return he.Message
-			}),
+			horus.WithFormatter(func(he *horus.Herror) string { return he.Message }),
 		)
 	}
-	*r = append(*r, replacement{old: parts[0], new: parts[1]})
+
+	old := parts[0]
+	newVal := parts[1]
+	mode := "token"
+
+	// Optional mode suffix on the RIGHT side: ...=VALUE:line or ...=VALUE:token
+	switch {
+	case strings.HasSuffix(newVal, ":line"):
+		mode = "line"
+		newVal = strings.TrimSuffix(newVal, ":line")
+	case strings.HasSuffix(newVal, ":token"):
+		mode = "token"
+		newVal = strings.TrimSuffix(newVal, ":token")
+	}
+
+	*r = append(*r, replacement{old: old, new: newVal, mode: mode})
 	return nil
 }
 
 func (r *replaceFlags) Type() string {
-	return "old=new"
+	return "old=new[:line|:token]"
+}
+
+func applyReplacements(content string, reps []replacement) string {
+	lines := strings.Split(content, "\n")
+
+	for i, line := range lines {
+		for _, rep := range reps {
+			switch rep.mode {
+			case "line":
+				if strings.Contains(line, rep.old) {
+					lines[i] = rep.new
+				}
+			default: // "token" or empty
+				lines[i] = strings.ReplaceAll(lines[i], rep.old, rep.new)
+			}
+		}
+	}
+
+	return strings.Join(lines, "\n")
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,11 +127,11 @@ func init() {
 	forgeCmd.Flags().StringVarP(&options.inPath, "in", "", "", "Where are the itmes to be forged?")
 	forgeCmd.Flags().StringVarP(&options.outPath, "out", "", "", "Where will the forge be delivered?")
 	forgeCmd.Flags().StringArrayVarP(&options.files, "files", "", []string{}, "These items will create...")
+	forgeCmd.Flags().VarP(&replacePairs, "replace", "r", "replacement in form old=new, comma-separated")
+
 	horus.CheckErr(forgeCmd.MarkFlagRequired("in"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
-
-	forgeCmd.Flags().VarP(&replacePairs, "replace", "r", "replacement in form old=new, comma-separated")
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
