@@ -21,7 +21,10 @@ package cmd
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"os"
+	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/DanielRivasMD/domovoi"
@@ -41,7 +44,8 @@ var (
 type forgeOptions struct {
 	inPath  string
 	outPath string
-	files   []string
+	outFile string
+	inFiles []string
 }
 
 type replacement struct {
@@ -126,10 +130,11 @@ func init() {
 
 	forgeCmd.Flags().StringVarP(&options.inPath, "in", "", "", "Where are the itmes to be forged?")
 	forgeCmd.Flags().StringVarP(&options.outPath, "out", "", "", "Where will the forge be delivered?")
-	forgeCmd.Flags().StringArrayVarP(&options.files, "files", "", []string{}, "These items will create...")
-	forgeCmd.Flags().VarP(&replacePairs, "replace", "r", "replacement in form old=new, comma-separated")
+	forgeCmd.Flags().StringArrayVarP(&options.inFiles, "files", "", []string{}, "These items will create...")
+	forgeCmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, comma-separated")
 
-	horus.CheckErr(forgeCmd.MarkFlagRequired("in"))
+	// TODO: error out as one-liner if required flags are absent
+	// horus.CheckErr(forgeCmd.MarkFlagRequired("in"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
 }
@@ -150,6 +155,9 @@ var forgeCmd = &cobra.Command{
 func runForge(cmd *cobra.Command, args []string) {
 	op := "mbombo.forge"
 
+	normalizeForgeOptions(&options)
+	fmt.Println(options)
+
 	horus.CheckErr(
 		catFiles(options),
 		horus.WithOp(op),
@@ -160,89 +168,119 @@ func runForge(cmd *cobra.Command, args []string) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// catFiles concatenates files specified in options.Files into the out file (options.OutPath)
-// It checks if the out file exists using FileExist (with an inline no-action) & removes it if it does
-// All errors are propagated using horus.PropagateErr
 func catFiles(options forgeOptions) error {
 	op := "cat"
 
-	exists, err := domovoi.FileExist(options.outPath, func(path string) (bool, error) {
+	// Detect overwrite mode
+	overwrite := false
+	if len(options.inFiles) == 1 && options.inFiles[0] == options.outFile {
+		overwrite = true
+	} else if len(options.inFiles) > 1 && slices.Contains(options.inFiles, options.outFile) {
+		return horus.PropagateErr(
+			op,
+			"overwrite_conflict",
+			"cannot overwrite output when multiple input files are used",
+			errors.New("overwrite conflict"),
+			map[string]any{
+				"outpath": options.outPath,
+				"files":   options.inFiles,
+			},
+		)
+	}
+
+	// Prepare source files
+	var sourceFiles []string
+	if overwrite {
+		tmpFile := options.outFile + ".tmp"
+		src := filepath.Join(options.outPath, options.outFile)
+		dst := filepath.Join(options.outPath, tmpFile)
+
+		if err := domovoi.CopyFile(src, dst); err != nil {
+			return horus.PropagateErr(op, "copy_error", "failed to copy file for overwrite", err, map[string]any{
+				"source": src,
+				"temp":   dst,
+			})
+		}
+		sourceFiles = []string{dst}
+		defer os.Remove(dst)
+	} else {
+		for _, f := range options.inFiles {
+			sourceFiles = append(sourceFiles, filepath.Join(options.inPath, f))
+		}
+	}
+
+	// Clean prior output (only now!)
+	outFull := filepath.Join(options.outPath, options.outFile)
+	exists, err := domovoi.FileExist(outFull, func(path string) (bool, error) {
 		return false, nil
 	}, verbose)
 	if err != nil {
-		return horus.PropagateErr(
-			op,
-			"file_exist_error",
-			"failed to check out file existence",
-			err,
-			map[string]any{"outpath": options.outPath},
-		)
+		return horus.PropagateErr(op, "file_exist_error", "failed to check out file existence", err, map[string]any{"outpath": outFull})
 	}
-
 	if exists {
-		if err := os.Remove(options.outPath); err != nil {
-			return horus.PropagateErr(
-				op,
-				"file_remove_error",
-				"failed to remove existing out file",
-				err,
-				map[string]any{"outpath": options.outPath},
-			)
+		if err := os.Remove(outFull); err != nil {
+			return horus.PropagateErr(op, "file_remove_error", "failed to remove existing out file", err, map[string]any{"outpath": outFull})
 		}
 	}
 
-	fwrite, err := os.OpenFile(options.outPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	// Prepare output writer
+	fwrite, err := os.OpenFile(outFull, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
-		return horus.PropagateErr(
-			op,
-			"open_file_error",
-			"failed to open out file",
-			err,
-			map[string]any{"outpath": options.outPath},
-		)
+		return horus.PropagateErr(op, "open_file_error", "failed to open out file", err, map[string]any{"outpath": outFull})
 	}
 	defer fwrite.Close()
-
 	writer := bufio.NewWriter(fwrite)
 
-	for _, file := range options.files {
-		srcPath := options.inPath + "/" + file
+	// Process each file
+	for _, srcPath := range sourceFiles {
 		fread, err := os.ReadFile(srcPath)
 		if err != nil {
-			return horus.PropagateErr(
-				op,
-				"read_source_error",
-				"failed to read source file",
-				err,
-				map[string]any{"source": srcPath},
-			)
+			return horus.PropagateErr(op, "read_source_error", "failed to read source file", err, map[string]any{"source": srcPath})
 		}
 
-		// Apply replacements before writing
 		content := applyReplacements(string(fread), replacePairs)
 
 		if _, err := writer.WriteString(content + "\n"); err != nil {
-			return horus.PropagateErr(
-				op,
-				"write_error",
-				"failed to write to out file",
-				err,
-				map[string]any{"source": srcPath},
-			)
+			return horus.PropagateErr(op, "write_error", "failed to write to out file", err, map[string]any{"source": srcPath})
 		}
 	}
 
 	if err := writer.Flush(); err != nil {
-		return horus.PropagateErr(
-			op,
-			"flush_error",
-			"failed to flush writer",
-			err,
-			map[string]any{"outpath": options.outPath},
-		)
+		return horus.PropagateErr(op, "flush_error", "failed to flush writer", err, map[string]any{"outpath": outFull})
 	}
 
 	return nil
+}
+
+func normalizeForgeOptions(opts *forgeOptions) {
+	// normalize input file path if only one
+	if len(opts.inFiles) == 1 {
+		full := opts.inFiles[0]
+		dir := filepath.Dir(full)
+		base := filepath.Base(full)
+
+		// if the path contains a directory, update inPath and inFiles
+		if dir != "." && strings.Contains(full, string(filepath.Separator)) {
+			opts.inPath = dir
+			opts.inFiles = []string{base}
+		}
+	}
+
+	// normalize output path
+	if opts.outPath != "" {
+		dir := filepath.Dir(opts.outPath)
+		base := filepath.Base(opts.outPath)
+
+		// if outPath contains a file, split it
+		if dir != "." && strings.Contains(opts.outPath, string(filepath.Separator)) {
+			opts.outPath = dir
+			opts.outFile = base
+		} else {
+			// if outPath is just a file name, treat current dir as path
+			opts.outFile = opts.outPath
+			opts.outPath = "."
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
