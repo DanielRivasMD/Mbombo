@@ -4,6 +4,8 @@
 
 ==================================================
 cmd/cmdForge.go
-  line 31     TODO   evaluate argument refactoring => one struct to capture all flags
-  line 32     TODO   evaluate reading toml config
+  line 36     TODO   evaluate argument refactoring => one struct to capture all flags
+  line 37     TODO   evaluate reading toml config
+  line 53     TODO   add tab completion?
+  line 136    TODO   error out as one-liner if required flags are absent
 ==================================================

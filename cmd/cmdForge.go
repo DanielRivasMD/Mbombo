@@ -21,7 +21,6 @@ package cmd
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -51,6 +50,7 @@ type forgeOptions struct {
 type replacement struct {
 	old  string // anchor or token
 	new  string // full replacement string
+// TODO: add tab completion?
 	mode string // "token" or "line"
 }
 
@@ -156,7 +156,6 @@ func runForge(cmd *cobra.Command, args []string) {
 	op := "mbombo.forge"
 
 	normalizeForgeOptions(&options)
-	fmt.Println(options)
 
 	horus.CheckErr(
 		catFiles(options),
