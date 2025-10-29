@@ -48,9 +48,9 @@ type forgeOptions struct {
 }
 
 type replacement struct {
-	old  string // anchor or token
-	new  string // full replacement string
-// TODO: add tab completion?
+	old string // anchor or token
+	new string // full replacement string
+	// TODO: add tab completion?
 	mode string // "token" or "line"
 }
 
