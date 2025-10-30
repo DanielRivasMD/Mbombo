@@ -234,13 +234,26 @@ func catFiles(options forgeOptions) error {
 	for _, srcPath := range sourceFiles {
 		fread, err := os.ReadFile(srcPath)
 		if err != nil {
-			return horus.PropagateErr(op, "read_source_error", "failed to read source file", err, map[string]any{"source": srcPath})
+			return horus.PropagateErr(
+				op,
+				"read_source_error",
+				"failed to read source file",
+				err,
+				map[string]any{"source": srcPath},
+			)
 		}
 
 		content := applyReplacements(string(fread), replacePairs)
+		content = strings.TrimRight(content, "\n")
 
 		if _, err := writer.WriteString(content + "\n"); err != nil {
-			return horus.PropagateErr(op, "write_error", "failed to write to out file", err, map[string]any{"source": srcPath})
+			return horus.PropagateErr(
+				op,
+				"write_error",
+				"failed to write to out file",
+				err,
+				map[string]any{"source": srcPath},
+			)
 		}
 	}
 
