@@ -4,31 +4,31 @@ package cmd
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
 
 	"github.com/DanielRivasMD/domovoi"
-	"github.com/pelletier/go-toml/v2"
 	"github.com/ttacon/chalk"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//go:embed docs.toml
+//go:embed docs.json
 var docsFS embed.FS
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type DocEntry struct {
-	Use                   string     `toml:"use"`
-	Aliases               []string   `toml:"aliases,omitempty"`
-	Hidden                bool       `toml:"hidden,omitempty"`
-	Short                 string     `toml:"short"`
-	Long                  string     `toml:"long"`
-	ExampleUsages         [][]string `toml:"example_usages,omitempty"`
-	ValidArgs             []string   `toml:"valid_args,omitempty"`
-	DisableFlagsInUseLine bool       `toml:"disable_flags_in_use_line,omitempty"`
+	Use                   string     `json:"use"`
+	Aliases               []string   `json:"aliases,omitempty"`
+	Hidden                bool       `json:"hidden,omitempty"`
+	Short                 string     `json:"short,omitempty"`
+	Long                  string     `json:"long"`
+	ExampleUsages         [][]string `json:"example_usages,omitempty"`
+	ValidArgs             []string   `json:"valid_args,omitempty"`
+	DisableFlagsInUseLine bool       `json:"disable_flags_in_use_line,omitempty"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,16 +44,15 @@ var (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// formatH intelligently formats help text only if it contains format specifiers
-func formatH(text string, appName string) string {
+// formatHelp intelligently formats help text only if it contains format specifiers
+func formatHelp(text string, appName string) string {
 	if text == "" {
 		return ""
 	}
 
 	// Check if the string contains any format specifiers
 	if strings.Contains(text, "%[1]s") || strings.Contains(text, "%s") {
-		// Replace any escaped %% with % first (if any)
-		text = strings.ReplaceAll(text, "%%", "%")
+		// No need to replace %% anymore since JSON doesn't require escaping
 		return fmt.Sprintf(text, appName)
 	}
 
@@ -89,14 +88,14 @@ func styleLongHelp(text string) string {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// formatX builds a multi‐line example block
-func formatX(app string, usages ...[]string) string {
+// formatExample builds a multi‐line example block
+func formatExample(app string, usages ...[]string) string {
 	return domovoi.FormatExample(app, usages...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// loadDocs initializes all documentation maps from the embedded TOML
+// loadDocs initializes all documentation maps from the embedded JSON
 func loadDocs() {
 	// Initialize maps
 	docs = make(map[string]DocEntry)
@@ -105,14 +104,14 @@ func loadDocs() {
 	short = make(map[string]string)
 	use = make(map[string]string)
 
-	// Load and parse TOML
-	data, err := docsFS.ReadFile("docs.toml")
+	// Load and parse JSON
+	data, err := docsFS.ReadFile("docs.json")
 	if err != nil {
 		// In production, we want to panic if docs are missing
 		panic(fmt.Sprintf("Failed to load embedded documentation: %v", err))
 	}
 
-	if err := toml.Unmarshal(data, &docs); err != nil {
+	if err := json.Unmarshal(data, &docs); err != nil {
 		panic(fmt.Sprintf("Failed to parse embedded documentation: %v", err))
 	}
 
@@ -122,12 +121,12 @@ func loadDocs() {
 		short[key] = entry.Short
 
 		// Format and style help text
-		formattedHelp := formatH(entry.Long, "mbombo")
+		formattedHelp := formatHelp(entry.Long, "mbombo")
 		help[key] = styleLongHelp(formattedHelp)
 
 		// Format examples if they exist
 		if len(entry.ExampleUsages) > 0 {
-			example[key] = formatX("mbombo", entry.ExampleUsages...)
+			example[key] = formatExample("mbombo", entry.ExampleUsages...)
 		}
 	}
 }
