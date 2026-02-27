@@ -45,6 +45,12 @@ func Execute() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func init() {
+	rootCmd.PersistentFlags().BoolVarP(&flags.verbose, "verbose", "v", false, "Enable verbose diagnostics")
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 var (
 	flags mbomboFlags
 )
@@ -55,8 +61,25 @@ type mbomboFlags struct {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func init() {
-	rootCmd.PersistentFlags().BoolVarP(&flags.verbose, "verbose", "v", false, "Enable verbose diagnostics")
+// TODO: evaluate argument refactoring => one struct to capture all flags
+// TODO: evaluate reading toml config
+var (
+	options      forgeOptions
+	replacePairs replaceFlags
+)
+
+type forgeOptions struct {
+	inPath  string
+	outPath string
+	outFile string
+	inFiles []string
+}
+
+type replacement struct {
+	old string // anchor or token
+	new string // full replacement string
+	// TODO: add tab completion?
+	mode string // "token" or "line"
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
