@@ -6,10 +6,12 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 
 	"github.com/DanielRivasMD/domovoi"
+	"github.com/spf13/cobra"
 	"github.com/ttacon/chalk"
 )
 
@@ -17,6 +19,10 @@ import (
 
 //go:embed docs.json
 var docsFS embed.FS
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type CommandOpt func(*cobra.Command)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,40 +50,28 @@ var (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// formatHelp intelligently formats help text only if it contains format specifiers
 func formatHelp(text string, appName string) string {
 	if text == "" {
 		return ""
 	}
-
-	// Check if the string contains any format specifiers
 	if strings.Contains(text, "%[1]s") || strings.Contains(text, "%s") {
-		// No need to replace %% anymore since JSON doesn't require escaping
 		return fmt.Sprintf(text, appName)
 	}
-
-	// No format specifiers, return as-is
 	return text
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// styleLongHelp applies styling to long help text
 func styleLongHelp(text string) string {
 	if text == "" {
 		return ""
 	}
-
-	// Split into lines to style sections
 	lines := strings.Split(text, "\n")
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
-
-		// Style shell commands (lines starting with $)
 		if strings.HasPrefix(trimmed, "$") {
 			lines[i] = chalk.White.Color(line)
 		}
-		// Style comments (lines starting with #)
 		if strings.HasPrefix(trimmed, "#") {
 			lines[i] = chalk.Dim.TextStyle(chalk.Cyan.Color(line))
 		}
@@ -88,23 +82,19 @@ func styleLongHelp(text string) string {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// formatExample builds a multi‐line example block
 func formatExample(app string, usages ...[]string) string {
 	return domovoi.FormatExample(app, usages...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// loadDocs initializes all documentation maps from the embedded JSON
 func loadDocs() {
-	// Initialize maps
 	docs = make(map[string]DocEntry)
 	example = make(map[string]string)
 	help = make(map[string]string)
 	short = make(map[string]string)
 	use = make(map[string]string)
 
-	// Load and parse JSON
 	data, err := docsFS.ReadFile("docs.json")
 	if err != nil {
 		// In production, we want to panic if docs are missing
@@ -115,59 +105,156 @@ func loadDocs() {
 		panic(fmt.Sprintf("Failed to parse embedded documentation: %v", err))
 	}
 
-	// Populate all the helper maps
 	for key, entry := range docs {
 		use[key] = entry.Use
 		short[key] = entry.Short
 
-		// Format and style help text
-		formattedHelp := formatHelp(entry.Long, "mbombo")
+		formattedHelp := formatHelp(entry.Long, APP)
 		help[key] = styleLongHelp(formattedHelp)
 
-		// Format examples if they exist
 		if len(entry.ExampleUsages) > 0 {
-			example[key] = formatExample("mbombo", entry.ExampleUsages...)
+			example[key] = formatExample(APP, entry.ExampleUsages...)
 		}
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// GetDocs returns the complete documentation map
 func GetDocs() map[string]DocEntry {
 	once.Do(loadDocs)
 	return docs
 }
 
-// GetExample returns the formatted example for a given command key
 func GetExample(key string) string {
 	once.Do(loadDocs)
 	return example[key]
 }
 
-// GetHelp returns the formatted help text for a given command key
 func GetHelp(key string) string {
 	once.Do(loadDocs)
 	return help[key]
 }
 
-// GetShort returns the short description for a given command key
 func GetShort(key string) string {
 	once.Do(loadDocs)
 	return short[key]
 }
 
-// GetUse returns the usage string for a given command key
 func GetUse(key string) string {
 	once.Do(loadDocs)
 	return use[key]
 }
 
-// GetDocEntry returns a specific documentation entry
 func GetDocEntry(key string) (DocEntry, bool) {
 	once.Do(loadDocs)
 	entry, exists := docs[key]
 	return entry, exists
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func authorHeader() string {
+	return chalk.Bold.TextStyle(
+		chalk.Green.Color("Daniel Rivas "),
+	) +
+		chalk.Dim.TextStyle(
+			chalk.Italic.TextStyle("<danielrivasmd@gmail.com>"),
+		)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func MakeCmd(key string, run func(*cobra.Command, []string), opts ...CommandOpt) *cobra.Command {
+	docs := GetDocs()
+	entry, exists := docs[key]
+	if !exists {
+		keys := make([]string, 0, len(docs))
+		for k := range docs {
+			keys = append(keys, k)
+		}
+		log.Fatalf("No documentation found for command: %s. Available keys: %v", key, keys)
+	}
+
+	longHelp := GetHelp(key)
+	if longHelp != "" {
+		longHelp = authorHeader() + "\n\n" + longHelp
+	} else {
+		longHelp = authorHeader()
+	}
+
+	cmd := &cobra.Command{
+		Use:     entry.Use,
+		Short:   entry.Short,
+		Long:    longHelp,
+		Example: GetExample(key),
+		Aliases: entry.Aliases,
+		Hidden:  entry.Hidden,
+		Run:     run,
+	}
+
+	if len(entry.ValidArgs) > 0 {
+		cmd.ValidArgs = entry.ValidArgs
+	}
+
+	if entry.DisableFlagsInUseLine {
+		cmd.DisableFlagsInUseLine = true
+	}
+
+	for _, opt := range opts {
+		opt(cmd)
+	}
+
+	return cmd
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func WithArgs(validator cobra.PositionalArgs) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.Args = validator
+	}
+}
+
+func WithValidArgs(args []string) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.ValidArgs = args
+	}
+}
+
+func WithAliases(aliases []string) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.Aliases = aliases
+	}
+}
+
+func WithDisableFlagParsing(disable bool) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.DisableFlagParsing = disable
+	}
+}
+
+func WithPreRun(preRun func(*cobra.Command, []string)) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.PreRun = preRun
+	}
+}
+
+func WithPostRun(postRun func(*cobra.Command, []string)) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.PostRun = postRun
+	}
+}
+
+func WithSilenceErrors(silence bool) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.SilenceErrors = silence
+	}
+}
+
+func WithSilenceUsage(silence bool) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.SilenceUsage = silence
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
