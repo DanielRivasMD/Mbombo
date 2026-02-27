@@ -1,3 +1,5 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 package cmd
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,20 +41,21 @@ type DocEntry struct {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var (
+type Docs struct {
 	once    sync.Once
-	docs    map[string]DocEntry
+	entries map[string]DocEntry
 	example map[string]string
 	help    map[string]string
 	short   map[string]string
 	use     map[string]string
-)
+	loadErr error
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func formatExample(app string, usages ...[]string) string {
-	return domovoi.FormatExample(app, usages...)
-}
+var (
+	globalDocs *Docs
+)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -90,10 +93,10 @@ func styleLongHelp(text string) string {
 
 func authorHeader() string {
 	return chalk.Bold.TextStyle(
-		chalk.Green.Color("Daniel Rivas "),
-	) +
+		chalk.Green.Color(NAME),
+	) + " " +
 		chalk.Dim.TextStyle(
-			chalk.Italic.TextStyle("<danielrivasmd@gmail.com>"),
+			chalk.Italic.TextStyle(EMAIL),
 		)
 }
 
@@ -106,87 +109,145 @@ func formatLongHelp(help string) string {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func loadDocs() {
-	docs = make(map[string]DocEntry)
-	example = make(map[string]string)
-	help = make(map[string]string)
-	short = make(map[string]string)
-	use = make(map[string]string)
+func (d *Docs) load() {
+	d.entries = make(map[string]DocEntry)
+	d.example = make(map[string]string)
+	d.help = make(map[string]string)
+	d.short = make(map[string]string)
+	d.use = make(map[string]string)
 
 	data, err := docsFS.ReadFile("docs.json")
 	if err != nil {
-		// In production, we want to panic if docs are missing
-		panic(fmt.Sprintf("Failed to load embedded documentation: %v", err))
+		d.loadErr = fmt.Errorf("failed to load embedded documentation: %w", err)
+		return
 	}
 
-	if err := json.Unmarshal(data, &docs); err != nil {
-		panic(fmt.Sprintf("Failed to parse embedded documentation: %v", err))
+	if err := json.Unmarshal(data, &d.entries); err != nil {
+		d.loadErr = fmt.Errorf("failed to parse embedded documentation: %w", err)
+		return
 	}
 
-	for key, entry := range docs {
-		use[key] = entry.Use
-		short[key] = entry.Short
+	for key, entry := range d.entries {
+		d.use[key] = entry.Use
+		d.short[key] = entry.Short
 
 		formattedHelp := formatHelp(entry.Long, APP)
-		help[key] = styleLongHelp(formattedHelp)
+		d.help[key] = styleLongHelp(formattedHelp)
 
 		if len(entry.ExampleUsages) > 0 {
-			example[key] = formatExample(APP, entry.ExampleUsages...)
+			d.example[key] = domovoi.FormatExample(APP, entry.ExampleUsages...)
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (d *Docs) ensureLoaded() {
+	d.once.Do(d.load)
+	if d.loadErr != nil {
+		panic(fmt.Sprintf("Documentation loading failed: %v", d.loadErr))
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (d *Docs) GetEntry(key string) (DocEntry, bool) {
+	d.ensureLoaded()
+	entry, exists := d.entries[key]
+	return entry, exists
+}
+
+func (d *Docs) GetExample(key string) string {
+	d.ensureLoaded()
+	return d.example[key]
+}
+
+func (d *Docs) GetHelp(key string) string {
+	d.ensureLoaded()
+	return d.help[key]
+}
+
+func (d *Docs) GetShort(key string) string {
+	d.ensureLoaded()
+	return d.short[key]
+}
+
+func (d *Docs) GetUse(key string) string {
+	d.ensureLoaded()
+	return d.use[key]
+}
+
+func (d *Docs) GetAllEntries() map[string]DocEntry {
+	d.ensureLoaded()
+	return d.entries
+}
+
+func (d *Docs) ListCommands() []string {
+	d.ensureLoaded()
+	commands := make([]string, 0, len(d.entries))
+	for k := range d.entries {
+		commands = append(commands, k)
+	}
+	return commands
+}
+
+func (d *Docs) CommandExists(key string) bool {
+	d.ensureLoaded()
+	_, exists := d.entries[key]
+	return exists
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func getGlobalDocs() *Docs {
+	if globalDocs == nil {
+		globalDocs = &Docs{}
+	}
+	return globalDocs
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func GetDocs() map[string]DocEntry {
-	once.Do(loadDocs)
-	return docs
+	return getGlobalDocs().GetAllEntries()
 }
 
 func GetExample(key string) string {
-	once.Do(loadDocs)
-	return example[key]
+	return getGlobalDocs().GetExample(key)
 }
 
 func GetHelp(key string) string {
-	once.Do(loadDocs)
-	return help[key]
+	return getGlobalDocs().GetHelp(key)
 }
 
 func GetShort(key string) string {
-	once.Do(loadDocs)
-	return short[key]
+	return getGlobalDocs().GetShort(key)
 }
 
 func GetUse(key string) string {
-	once.Do(loadDocs)
-	return use[key]
+	return getGlobalDocs().GetUse(key)
 }
 
 func GetDocEntry(key string) (DocEntry, bool) {
-	once.Do(loadDocs)
-	entry, exists := docs[key]
-	return entry, exists
+	return getGlobalDocs().GetEntry(key)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func MakeCmd(key string, run func(*cobra.Command, []string), opts ...CommandOpt) *cobra.Command {
-	docs := GetDocs()
-	entry, exists := docs[key]
+	d := getGlobalDocs()
+
+	entry, exists := d.GetEntry(key)
 	if !exists {
-		keys := make([]string, 0, len(docs))
-		for k := range docs {
-			keys = append(keys, k)
-		}
+		keys := d.ListCommands()
 		log.Fatalf("No documentation found for command: %s. Available keys: %v", key, keys)
 	}
 
 	cmd := &cobra.Command{
-		Use:     GetUse(key),
-		Short:   GetShort(key),
-		Long:    formatLongHelp(GetHelp(key)),
-		Example: GetExample(key),
+		Use:     d.GetUse(key),
+		Short:   d.GetShort(key),
+		Long:    formatLongHelp(d.GetHelp(key)),
+		Example: d.GetExample(key),
 		Aliases: entry.Aliases,
 		Hidden:  entry.Hidden,
 		Run:     run,
