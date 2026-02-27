@@ -26,25 +26,14 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var identityCmd = &cobra.Command{
-	Use:     "identity",
-	Aliases: []string{"id"},
-	Hidden:  true,
-	Short:   `Reveal `,
-
-	Run: runIdentity,
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 func init() {
+	identityCmd := MakeCmd("identity", runIdentity)
 	rootCmd.AddCommand(identityCmd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func runIdentity(cmd *cobra.Command, args []string) {
-	// fmt.Println(chalk.White.Color("REPOSITORY:"))
 	fmt.Println(`Mbombo, also called Bumba, is the creator god in the religion
 and mythology of the Kuba people of Central Africa in the area
 that is now known as Democratic Republic of the Congo
