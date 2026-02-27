@@ -56,7 +56,6 @@ type replacement struct {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// implement pflag.Value
 type replaceFlags []replacement
 
 func (r *replaceFlags) String() string {
@@ -70,7 +69,6 @@ func (r *replaceFlags) String() string {
 func (r *replaceFlags) Set(val string) error {
 	op := "flag.set"
 
-	// Always split key/value first
 	parts := strings.SplitN(val, "=", 2)
 	if len(parts) != 2 {
 		horus.CheckErr(
@@ -86,7 +84,6 @@ func (r *replaceFlags) Set(val string) error {
 	newVal := parts[1]
 	mode := "token"
 
-	// Optional mode suffix on the RIGHT side: ...=VALUE:line or ...=VALUE:token
 	switch {
 	case strings.HasSuffix(newVal, ":line"):
 		mode = "line"
@@ -128,13 +125,11 @@ func applyReplacements(content string, reps []replacement) string {
 func init() {
 	forgeCmd := MakeCmd("forge", runForge)
 
-	// Add flags
 	forgeCmd.Flags().StringVarP(&options.inPath, "in", "", "", "Where are the itmes to be forged?")
 	forgeCmd.Flags().StringVarP(&options.outPath, "out", "", "", "Where will the forge be delivered?")
 	forgeCmd.Flags().StringArrayVarP(&options.inFiles, "files", "", []string{}, "These items will create...")
 	forgeCmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, comma-separated")
 
-	// Mark required flags
 	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
 
@@ -161,7 +156,6 @@ func runForge(cmd *cobra.Command, args []string) {
 func catFiles(options forgeOptions) error {
 	op := "cat"
 
-	// Detect overwrite mode
 	overwrite := false
 	if len(options.inFiles) == 1 && options.inFiles[0] == options.outFile {
 		overwrite = true
@@ -178,7 +172,6 @@ func catFiles(options forgeOptions) error {
 		)
 	}
 
-	// Prepare source files
 	var sourceFiles []string
 	if overwrite {
 		tmpFile := options.outFile + ".tmp"
@@ -199,11 +192,10 @@ func catFiles(options forgeOptions) error {
 		}
 	}
 
-	// Clean prior output (only now!)
 	outFull := filepath.Join(options.outPath, options.outFile)
 	exists, err := domovoi.FileExist(outFull, func(path string) (bool, error) {
 		return false, nil
-	}, verbose)
+	}, flags.verbose)
 	if err != nil {
 		return horus.PropagateErr(op, "file_exist_error", "failed to check out file existence", err, map[string]any{"outpath": outFull})
 	}
@@ -213,7 +205,6 @@ func catFiles(options forgeOptions) error {
 		}
 	}
 
-	// Prepare output writer
 	fwrite, err := os.OpenFile(outFull, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return horus.PropagateErr(op, "open_file_error", "failed to open out file", err, map[string]any{"outpath": outFull})
@@ -221,7 +212,6 @@ func catFiles(options forgeOptions) error {
 	defer fwrite.Close()
 	writer := bufio.NewWriter(fwrite)
 
-	// Process each file
 	for _, srcPath := range sourceFiles {
 		fread, err := os.ReadFile(srcPath)
 		if err != nil {
@@ -256,30 +246,25 @@ func catFiles(options forgeOptions) error {
 }
 
 func normalizeForgeOptions(opts *forgeOptions) {
-	// normalize input file path if only one
 	if len(opts.inFiles) == 1 {
 		full := opts.inFiles[0]
 		dir := filepath.Dir(full)
 		base := filepath.Base(full)
 
-		// if the path contains a directory, update inPath and inFiles
 		if dir != "." && strings.Contains(full, string(filepath.Separator)) {
 			opts.inPath = dir
 			opts.inFiles = []string{base}
 		}
 	}
 
-	// normalize output path
 	if opts.outPath != "" {
 		dir := filepath.Dir(opts.outPath)
 		base := filepath.Base(opts.outPath)
 
-		// if outPath contains a file, split it
 		if dir != "." && strings.Contains(opts.outPath, string(filepath.Separator)) {
 			opts.outPath = dir
 			opts.outFile = base
 		} else {
-			// if outPath is just a file name, treat current dir as path
 			opts.outFile = opts.outPath
 			opts.outPath = "."
 		}
