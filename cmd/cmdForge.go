@@ -126,28 +126,19 @@ func applyReplacements(content string, reps []replacement) string {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func init() {
-	rootCmd.AddCommand(forgeCmd)
+	forgeCmd := MakeCmd("forge", runForge)
 
+	// Add flags
 	forgeCmd.Flags().StringVarP(&options.inPath, "in", "", "", "Where are the itmes to be forged?")
 	forgeCmd.Flags().StringVarP(&options.outPath, "out", "", "", "Where will the forge be delivered?")
 	forgeCmd.Flags().StringArrayVarP(&options.inFiles, "files", "", []string{}, "These items will create...")
 	forgeCmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, comma-separated")
 
-	// TODO: error out as one-liner if required flags are absent
-	// horus.CheckErr(forgeCmd.MarkFlagRequired("in"))
+	// Mark required flags
 	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
-}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var forgeCmd = &cobra.Command{
-	Use:     "forge",
-	Short:   "Forge products",
-	Long:    helpForge,
-	Example: exampleForge,
-
-	Run: runForge,
+	rootCmd.AddCommand(forgeCmd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
