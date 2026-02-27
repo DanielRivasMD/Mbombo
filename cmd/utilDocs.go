@@ -50,6 +50,12 @@ var (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func formatExample(app string, usages ...[]string) string {
+	return domovoi.FormatExample(app, usages...)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func formatHelp(text string, appName string) string {
 	if text == "" {
 		return ""
@@ -82,8 +88,20 @@ func styleLongHelp(text string) string {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func formatExample(app string, usages ...[]string) string {
-	return domovoi.FormatExample(app, usages...)
+func authorHeader() string {
+	return chalk.Bold.TextStyle(
+		chalk.Green.Color("Daniel Rivas "),
+	) +
+		chalk.Dim.TextStyle(
+			chalk.Italic.TextStyle("<danielrivasmd@gmail.com>"),
+		)
+}
+
+func formatLongHelp(help string) string {
+	if help != "" {
+		return authorHeader() + "\n\n" + help
+	}
+	return authorHeader()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,17 +171,6 @@ func GetDocEntry(key string) (DocEntry, bool) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func authorHeader() string {
-	return chalk.Bold.TextStyle(
-		chalk.Green.Color("Daniel Rivas "),
-	) +
-		chalk.Dim.TextStyle(
-			chalk.Italic.TextStyle("<danielrivasmd@gmail.com>"),
-		)
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 func MakeCmd(key string, run func(*cobra.Command, []string), opts ...CommandOpt) *cobra.Command {
 	docs := GetDocs()
 	entry, exists := docs[key]
@@ -175,17 +182,10 @@ func MakeCmd(key string, run func(*cobra.Command, []string), opts ...CommandOpt)
 		log.Fatalf("No documentation found for command: %s. Available keys: %v", key, keys)
 	}
 
-	longHelp := GetHelp(key)
-	if longHelp != "" {
-		longHelp = authorHeader() + "\n\n" + longHelp
-	} else {
-		longHelp = authorHeader()
-	}
-
 	cmd := &cobra.Command{
-		Use:     entry.Use,
-		Short:   entry.Short,
-		Long:    longHelp,
+		Use:     GetUse(key),
+		Short:   GetShort(key),
+		Long:    formatLongHelp(GetHelp(key)),
 		Example: GetExample(key),
 		Aliases: entry.Aliases,
 		Hidden:  entry.Hidden,
