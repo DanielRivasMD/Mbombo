@@ -33,7 +33,7 @@ const EMAIL = "<danielrivasmd@gmail.com>"
 
 var rootCmd = &cobra.Command{
 	Use:     GetUse("root"),
-	Long:    GetHelp("root"),
+	Long:    formatLongHelp(GetHelp("root")),
 	Example: GetExample("root"),
 }
 

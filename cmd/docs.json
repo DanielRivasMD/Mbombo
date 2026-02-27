@@ -16,7 +16,13 @@
     "use": "forge",
     "short": "Forge products",
     "long": "Forge by defining the materials, the destination & indicate pieces to replace",
-    "example_usages": [["forge", "--help"]]
+    "example_usages": [
+      ["forge", "--files", "header.html", "footer.html", "--out", "output/page.html"],
+      ["forge", "--files", "config.tmpl", "--out", "config.json", "--replace", "VERSION=1.0.0", "API_URL=https://api.example.com"],
+      ["forge", "--in", "templates/", "--files", "base.tmpl", "nav.tmpl", "--out", "build/index.html", "--replace", "{{YEAR}}=2026:token", "{{AUTHOR}}=Daniel:token"],
+      ["forge", "--files", "script.js", "--out", "dist/script.min.js", "--replace", "console.log=:line"],
+      ["forge", "--files", "README.md", "--out", "README.md", "--replace", "v0.0.0=v1.2.3"]
+    ]
   },
   "root": {
     "use": "mbombo",
