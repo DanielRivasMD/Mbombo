@@ -2,9 +2,7 @@
   "identity": {
     "use": "identity",
     "aliases": ["id"],
-    "hidden": true,
-    "short": "Reveal the creator god of the Kuba people",
-    "long": "Mbombo, also called Bumba, is the creator god in the religion\nand mythology of the Kuba people of Central Africa in the area\nthat is now known as Democratic Republic of the Congo\n\nIn the Mbombo creation myth, Mbombo was a giant in form and\nwhite in color. The myth describes the creation of the universe\nfrom nothing"
+    "hidden": true
   },
   "completion": {
     "use": "completion [bash|zsh|fish|powershell]",
