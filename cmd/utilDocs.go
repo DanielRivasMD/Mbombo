@@ -115,11 +115,13 @@ func styleDescription(text string) string {
 
 func authorHeader() string {
 	return chalk.Bold.TextStyle(
-		chalk.Green.Color("Daniel Rivas"),
+		chalk.Green.Color(NAME),
 	) + " " +
 		chalk.Dim.TextStyle(
-			chalk.Italic.TextStyle("<danielrivasmd@gmail.com>"),
-		)
+			chalk.Italic.TextStyle(EMAIL),
+		) + "\n" +
+		chalk.White.Color(APP) + " " +
+		chalk.Bold.TextStyle(VERSION)
 }
 
 func formatLongHelp(help string) string {
