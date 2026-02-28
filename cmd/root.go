@@ -26,6 +26,7 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const APP = "mbombo"
+const VERSION = "v1.0.0"
 const NAME = "Daniel Rivas"
 const EMAIL = "<danielrivasmd@gmail.com>"
 
@@ -35,6 +36,7 @@ var rootCmd = &cobra.Command{
 	Use:     GetUse("root"),
 	Long:    formatLongHelp(GetHelp("root")),
 	Example: GetExample("root"),
+	Version: VERSION,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
