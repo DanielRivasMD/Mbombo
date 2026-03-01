@@ -1,10 +1,8 @@
-- update readme
 - add cmd multiple to multiple?; now `mbombo forge` multiple to one
 
 ==================================================
-cmd/cmdForge.go
-  line 36     TODO   evaluate argument refactoring => one struct to capture all flags
-  line 37     TODO   evaluate reading toml config
-  line 53     TODO   add tab completion?
-  line 136    TODO   error out as one-liner if required flags are absent
+cmd/root.go
+  line 66     TODO   evaluate argument refactoring => one struct to capture all flags
+  line 67     TODO   evaluate reading toml config
+  line 80     TODO   add tab completion?
 ==================================================

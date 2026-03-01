@@ -77,10 +77,10 @@ type forgeOptions struct {
 	inFiles []string
 }
 
+// TODO: add tab completion?
 type replacement struct {
-	old string // anchor or token
-	new string // full replacement string
-	// TODO: add tab completion?
+	old  string // anchor or token
+	new  string // full replacement string
 	mode string // "token" or "line"
 }
 
