@@ -319,6 +319,12 @@ func WithValidArgs(args []string) CommandOpt {
 	}
 }
 
+func WithValidArgsFunction(f func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective)) CommandOpt {
+	return func(cmd *cobra.Command) {
+		cmd.ValidArgsFunction = f
+	}
+}
+
 func WithAliases(aliases []string) CommandOpt {
 	return func(cmd *cobra.Command) {
 		cmd.Aliases = aliases
