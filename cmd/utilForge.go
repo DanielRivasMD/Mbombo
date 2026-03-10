@@ -28,56 +28,9 @@ import (
 
 	"github.com/DanielRivasMD/domovoi"
 	"github.com/DanielRivasMD/horus"
-
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type replaceFlags []replacement
-
-func (r *replaceFlags) String() string {
-	parts := make([]string, len(*r))
-	for i, rep := range *r {
-		parts[i] = rep.old + "=" + rep.new
-	}
-	return strings.Join(parts, ",")
-}
-
-func (r *replaceFlags) Set(val string) error {
-	op := "flag.set"
-
-	parts := strings.SplitN(val, "=", 2)
-	if len(parts) != 2 {
-		horus.CheckErr(
-			errors.New(""),
-			horus.WithOp(op),
-			horus.WithMessage("invalid replace pair"),
-			horus.WithExitCode(2),
-			horus.WithFormatter(func(he *horus.Herror) string { return he.Message }),
-		)
-	}
-
-	old := parts[0]
-	newVal := parts[1]
-	mode := "token"
-
-	switch {
-	case strings.HasSuffix(newVal, ":line"):
-		mode = "line"
-		newVal = strings.TrimSuffix(newVal, ":line")
-	case strings.HasSuffix(newVal, ":token"):
-		mode = "token"
-		newVal = strings.TrimSuffix(newVal, ":token")
-	}
-
-	*r = append(*r, replacement{old: old, new: newVal, mode: mode})
-	return nil
-}
-
-func (r *replaceFlags) Type() string {
-	return "old=new[:line|:token]"
-}
-
+// //////////////////////////////////////////////////////////////////////////////////////////////////
 func applyReplacements(content string, reps []replacement) string {
 	lines := strings.Split(content, "\n")
 
@@ -99,7 +52,7 @@ func applyReplacements(content string, reps []replacement) string {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func catFiles(options forgeOptions) error {
+func catFiles(options forgeFlag) error {
 	op := "cat"
 
 	overwrite := false
@@ -141,7 +94,7 @@ func catFiles(options forgeOptions) error {
 	outFull := filepath.Join(options.outPath, options.outFile)
 	exists, err := domovoi.FileExist(outFull, func(path string) (bool, error) {
 		return false, nil
-	}, flags.verbose)
+	}, rootFlags.verbose)
 	if err != nil {
 		return horus.PropagateErr(op, "file_exist_error", "failed to check out file existence", err, map[string]any{"outpath": outFull})
 	}
@@ -191,7 +144,9 @@ func catFiles(options forgeOptions) error {
 	return nil
 }
 
-func normalizeForgeOptions(opts *forgeOptions) {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func normalizeForgeOptions(opts *forgeFlag) {
 	if len(opts.inFiles) == 1 {
 		full := opts.inFiles[0]
 		dir := filepath.Dir(full)
@@ -215,6 +170,74 @@ func normalizeForgeOptions(opts *forgeOptions) {
 			opts.outPath = "."
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type replaceFlags []replacement
+
+func (r *replaceFlags) String() string {
+	parts := make([]string, len(*r))
+	for i, rep := range *r {
+		parts[i] = rep.old + "=" + rep.new
+	}
+	return strings.Join(parts, ",")
+}
+
+func (r *replaceFlags) Set(val string) error {
+	op := "flag.set"
+
+	parts := strings.SplitN(val, "=", 2)
+	if len(parts) != 2 {
+		horus.CheckErr(
+			errors.New(""),
+			horus.WithOp(op),
+			horus.WithMessage("invalid replace pair"),
+			horus.WithExitCode(2),
+			horus.WithFormatter(func(he *horus.Herror) string { return he.Message }),
+		)
+	}
+
+	old := parts[0]
+	newVal := parts[1]
+	mode := "token"
+
+	switch {
+	case strings.HasSuffix(newVal, ":line"):
+		mode = "line"
+		newVal = strings.TrimSuffix(newVal, ":line")
+	case strings.HasSuffix(newVal, ":token"):
+		mode = "token"
+		newVal = strings.TrimSuffix(newVal, ":token")
+	}
+
+	*r = append(*r, replacement{old: old, new: newVal, mode: mode})
+	return nil
+}
+
+func (r *replaceFlags) Type() string {
+	return "old=new[:line|:token]"
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var (
+	forgeFlags   forgeFlag
+	replacePairs replaceFlags
+)
+
+type forgeFlag struct {
+	inPath  string
+	outPath string
+	outFile string
+	inFiles []string
+}
+
+// TODO: add tab completion?
+type replacement struct {
+	old  string // anchor or token
+	new  string // full replacement string
+	mode string // "token" or "line"
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
