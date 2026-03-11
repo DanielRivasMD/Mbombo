@@ -28,12 +28,12 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func init() {
-	d := GetDocs()
-	identityCmd := horus.Must(d.MakeCmd("identity", runIdentity,
+func IdentityCmd() *cobra.Command {
+	d := horus.Must(domovoi.GlobalDocs())
+	cmd := horus.Must(d.MakeCmd("identity", runIdentity,
 		domovoi.WithAliases([]string{"id"}),
 	))
-	GetRootCmd().AddCommand(identityCmd)
+	return cmd
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
