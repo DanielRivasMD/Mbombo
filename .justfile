@@ -47,15 +47,15 @@ exe := 'mbombo'
 ####################################################################################################
 
 # build exec
-[group('go')]
+[group('dev')]
 build app=app:
   @echo "\n\033[1;33mBuilding\033[0;37m...\n=================================================="
-  go build -v -o excalibur/{{app}}
+  go build -v -o excalibur/{{exe}}
 
 ####################################################################################################
 
 # install locally
-[group('go')]
+[group('dev')]
 install app=app exe=exe:
   @echo "\n\033[1;33mInstalling\033[0;37m...\n=================================================="
   go install
@@ -64,7 +64,7 @@ install app=app exe=exe:
 ####################################################################################################
 
 # watch
-[group('go')]
+[group('dev')]
 watch:
   watchexec --clear --watch cmd -- 'just install'
 
