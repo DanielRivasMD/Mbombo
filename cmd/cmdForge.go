@@ -26,17 +26,18 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func init() {
-	forgeCmd := MakeCmd("forge", runForge)
+	d := GetDocs()
+	forgeCmd := horus.Must(d.MakeCmd("forge", runForge))
 
-	forgeCmd.Flags().StringVarP(&forgeFlags.inPath, "in", "", "", "Where are the itmes to be forged?")
-	forgeCmd.Flags().StringVarP(&forgeFlags.outPath, "out", "", "", "Where will the forge be delivered?")
-	forgeCmd.Flags().StringArrayVarP(&forgeFlags.inFiles, "files", "", []string{}, "These items will create...")
-	forgeCmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, comma-separated")
+	forgeCmd.Flags().StringVarP(&forgeFlags.inPath, "in", "", "", "itmes to be forged")
+	forgeCmd.Flags().StringVarP(&forgeFlags.outPath, "out", "", "", "path to forge")
+	forgeCmd.Flags().StringArrayVarP(&forgeFlags.inFiles, "files", "", []string{}, "forge components")
+	forgeCmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, space-separated")
 
 	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
 	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
 
-	rootCmd.AddCommand(forgeCmd)
+	GetRootCmd().AddCommand(forgeCmd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
