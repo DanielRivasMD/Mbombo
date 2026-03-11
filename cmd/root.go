@@ -92,8 +92,9 @@ func BuildCommands() {
 	root := GetRootCmd()
 	root.AddCommand(
 		CompletionCmd(),
-		ForgeCmd(),
 		IdentityCmd(),
+
+		ForgeCmd(),
 	)
 }
 
