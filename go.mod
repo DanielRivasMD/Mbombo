@@ -3,7 +3,7 @@ module github.com/DanielRivasMD/Mbombo
 go 1.25
 
 require (
-	github.com/DanielRivasMD/domovoi v0.1.0
+	github.com/DanielRivasMD/domovoi v0.2.0
 	github.com/DanielRivasMD/horus v1.1.0
 	github.com/spf13/cobra v1.10.2
 )
