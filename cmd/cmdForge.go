@@ -19,25 +19,26 @@ package cmd
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
+	"github.com/DanielRivasMD/domovoi"
 	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func init() {
-	d := GetDocs()
-	forgeCmd := horus.Must(d.MakeCmd("forge", runForge))
+func ForgeCmd() *cobra.Command {
+	d := horus.Must(domovoi.GlobalDocs())
+	cmd := horus.Must(d.MakeCmd("forge", runForge))
 
-	forgeCmd.Flags().StringVarP(&forgeFlags.inPath, "in", "", "", "itmes to be forged")
-	forgeCmd.Flags().StringVarP(&forgeFlags.outPath, "out", "", "", "path to forge")
-	forgeCmd.Flags().StringArrayVarP(&forgeFlags.inFiles, "files", "", []string{}, "forge components")
-	forgeCmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, space-separated")
+	cmd.Flags().StringVarP(&forgeFlags.inPath, "in", "", "", "itmes to be forged")
+	cmd.Flags().StringVarP(&forgeFlags.outPath, "out", "", "", "path to forge")
+	cmd.Flags().StringArrayVarP(&forgeFlags.inFiles, "files", "", []string{}, "forge components")
+	cmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, space-separated")
 
-	horus.CheckErr(forgeCmd.MarkFlagRequired("out"))
-	horus.CheckErr(forgeCmd.MarkFlagRequired("files"))
+	horus.CheckErr(cmd.MarkFlagRequired("out"))
+	horus.CheckErr(cmd.MarkFlagRequired("files"))
 
-	GetRootCmd().AddCommand(forgeCmd)
+	return cmd
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
