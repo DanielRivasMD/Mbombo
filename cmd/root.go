@@ -19,46 +19,79 @@ package cmd
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
+	"embed"
+	"sync"
+
+	"github.com/DanielRivasMD/domovoi"
 	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const APP = "mbombo"
-const VERSION = "v1.0.0"
-const NAME = "Daniel Rivas"
-const EMAIL = "<danielrivasmd@gmail.com>"
+//go:embed docs.json
+var docsFS embed.FS
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var rootCmd = &cobra.Command{
-	Use:     GetUse("root"),
-	Long:    formatLongHelp(GetHelp("root")),
-	Example: GetExample("root"),
-	Version: VERSION,
+const (
+	APP     = "mbombo"
+	VERSION = "v1.0.0"
+	AUTHOR  = "Daniel Rivas"
+	EMAIL   = "<danielrivasmd@gmail.com>"
+)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// GetDocs returns the Docs instance, initialising it on first call.
+func GetDocs() *domovoi.Docs {
+	onceDocs.Do(func() {
+		info := domovoi.AppInfo{
+			Name:    APP,
+			Version: VERSION,
+			Author:  AUTHOR,
+			Email:   EMAIL,
+		}
+		docs = horus.Must(domovoi.NewDocs(docsFS, info))
+	})
+	return docs
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// GetRootCmd returns the root command, initialising it on first call.
+func GetRootCmd() *cobra.Command {
+	onceRoot.Do(func() {
+		d := GetDocs()
+		rootCmd = &cobra.Command{
+			Use:     horus.Must(d.GetUse("root")),
+			Long:    horus.Must(d.GetHelp("root")),
+			Example: horus.Must(d.GetExample("root")),
+			Version: VERSION,
+		}
+		rootCmd.PersistentFlags().BoolVarP(&rootFlags.verbose, "verbose", "v", false, "Enable verbose diagnostics")
+	})
+	return rootCmd
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func Execute() {
-	horus.CheckErr(rootCmd.Execute())
+	horus.CheckErr(GetRootCmd().Execute())
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func init() {
-	rootCmd.PersistentFlags().BoolVarP(&rootFlags.verbose, "verbose", "v", false, "Enable verbose diagnostics")
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var (
-	rootFlags rootFlag
-)
 
 type rootFlag struct {
 	verbose bool
 }
+
+var (
+	onceDocs  sync.Once
+	onceRoot  sync.Once
+	docs      *domovoi.Docs
+	rootCmd   *cobra.Command
+	rootFlags rootFlag
+)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
