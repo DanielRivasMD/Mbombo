@@ -43,33 +43,27 @@ const (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// GetDocs returns the Docs instance, initialising it on first call.
-func GetDocs() *domovoi.Docs {
-	onceDocs.Do(func() {
-		info := domovoi.AppInfo{
-			Name:    APP,
-			Version: VERSION,
-			Author:  AUTHOR,
-			Email:   EMAIL,
-		}
-		docs = horus.Must(domovoi.NewDocs(docsFS, info))
-	})
-	return docs
+func InitDocs() {
+	info := domovoi.AppInfo{
+		Name:    APP,
+		Version: VERSION,
+		Author:  AUTHOR,
+		Email:   EMAIL,
+	}
+	domovoi.SetGlobalDocsConfig(docsFS, info)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// GetRootCmd returns the root command, initialising it on first call.
 func GetRootCmd() *cobra.Command {
 	onceRoot.Do(func() {
-		d := GetDocs()
-		rootCmd = &cobra.Command{
-			Use:     horus.Must(d.GetUse("root")),
-			Long:    horus.Must(d.GetHelp("root")),
-			Example: horus.Must(d.GetExample("root")),
-			Version: VERSION,
-		}
+		d := horus.Must(domovoi.GlobalDocs())
+		var err error
+		rootCmd, err = d.MakeCmd("root", nil)
+		horus.CheckErr(err)
+
 		rootCmd.PersistentFlags().BoolVarP(&rootFlags.verbose, "verbose", "v", false, "Enable verbose diagnostics")
+		rootCmd.Version = VERSION
 	})
 	return rootCmd
 }
@@ -87,9 +81,7 @@ type rootFlag struct {
 }
 
 var (
-	onceDocs  sync.Once
 	onceRoot  sync.Once
-	docs      *domovoi.Docs
 	rootCmd   *cobra.Command
 	rootFlags rootFlag
 )
