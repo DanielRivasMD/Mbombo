@@ -21,14 +21,19 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/DanielRivasMD/domovoi"
+	"github.com/DanielRivasMD/horus"
 	"github.com/spf13/cobra"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func init() {
-	identityCmd := MakeCmd("identity", runIdentity, WithAliases([]string{"id"}))
-	rootCmd.AddCommand(identityCmd)
+	d := GetDocs()
+	identityCmd := horus.Must(d.MakeCmd("identity", runIdentity,
+		domovoi.WithAliases([]string{"id"}),
+	))
+	GetRootCmd().AddCommand(identityCmd)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
