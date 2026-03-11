@@ -28,13 +28,13 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func init() {
-	d := GetDocs()
-	completionCmd := horus.Must(d.MakeCmd("completion", runCompletion,
+func CompletionCmd() *cobra.Command {
+	d := horus.Must(domovoi.GlobalDocs())
+	cmd := horus.Must(d.MakeCmd("completion", runCompletion,
 		domovoi.WithArgs(cobra.ExactArgs(1)),
 		domovoi.WithValidArgs([]string{"bash", "zsh", "fish", "powershell"}),
 	))
-	GetRootCmd().AddCommand(completionCmd)
+	return cmd
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
