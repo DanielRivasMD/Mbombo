@@ -29,11 +29,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func IdentityCmd() *cobra.Command {
-	d := horus.Must(domovoi.GlobalDocs())
-	cmd := horus.Must(d.MakeCmd("identity", runIdentity,
+	return horus.Must(horus.Must(domovoi.GlobalDocs()).MakeCmd("identity", runIdentity,
 		domovoi.WithAliases([]string{"id"}),
 	))
-	return cmd
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
