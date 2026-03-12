@@ -36,8 +36,7 @@ func IdentityCmd() *cobra.Command {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func runIdentity(cmd *cobra.Command, args []string) {
-	fmt.Println(`Mbombo, also called Bumba, is the creator god in the religion
+const IDENT = `Mbombo, also called Bumba, is the creator god in the religion
 and mythology of the Kuba people of Central Africa in the area
 that is now known as Democratic Republic of the Congo
 
@@ -48,7 +47,14 @@ from nothing
 Role: Mbombo is considered a creator god in Bushongo mythology
 Creation story: According to legend, in the beginning, there was only darkness and water, and Mbombo was the only being. He was a giant, pale god who eventually felt pain in his stomach and vomited up the sun, moon, stars, and then the Earth itself, including animals and people
 Symbolism: His creation of the world through vomiting is unique and symbolic, often interpreted as a metaphor for creative force through suffering or sacrifice
-Assistants: After creation, Mbombo delegated tasks to his sons and some of the first humans and animals to help finish shaping the world`)
+Assistants: After creation, Mbombo delegated tasks to his sons and some of the first humans and animals to help finish shaping the world`
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func runIdentity(cmd *cobra.Command, args []string) {
+	fmt.Println()
+	fmt.Println(IDENT)
+	fmt.Println()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
