@@ -14,6 +14,15 @@
       "powershell"
     ]
   },
+  "root": {
+    "use": "mbombo",
+    "long": "Forge a unifed product",
+    "example_usages": [
+      [
+        "help"
+      ]
+    ]
+  },
   "forge": {
     "use": "forge",
     "short": "Forge products",
@@ -67,15 +76,6 @@
         "README.md",
         "--replace",
         "v0.0.0=v1.2.3"
-      ]
-    ]
-  },
-  "root": {
-    "use": "mbombo",
-    "long": "Forge a unifed product",
-    "example_usages": [
-      [
-        "help"
       ]
     ]
   }
