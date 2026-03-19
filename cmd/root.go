@@ -110,7 +110,7 @@ func BuildCommands() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func runRoot(cmd *cobra.Command, args []string) {
-	op := "mbombo.forge"
+	op := "mbombo.root"
 
 	normalizeForgeOptions(&rootFlags)
 
