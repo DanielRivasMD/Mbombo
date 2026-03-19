@@ -57,13 +57,20 @@ func InitDocs() {
 
 func GetRootCmd() *cobra.Command {
 	onceRoot.Do(func() {
-		d := horus.Must(domovoi.GlobalDocs())
-		var err error
-		rootCmd, err = d.MakeCmd("root", nil)
-		horus.CheckErr(err)
+		cmd := horus.Must(horus.Must(domovoi.GlobalDocs()).MakeCmd("root", runRoot))
 
-		rootCmd.PersistentFlags().BoolVarP(&rootFlags.verbose, "verbose", "v", false, "Enable verbose diagnostics")
-		rootCmd.Version = VERSION
+		cmd.Flags().StringVarP(&rootFlags.inPath, "in", "", "", "items to be forged")
+		cmd.Flags().StringVarP(&rootFlags.outPath, "out", "", "", "path to forge")
+		cmd.Flags().StringArrayVarP(&rootFlags.inFiles, "files", "", []string{}, "forge components")
+		cmd.Flags().VarP(&replacePairs, "replace", "", "replacement in form old=new, space-separated")
+
+		horus.CheckErr(cmd.MarkFlagRequired("out"))
+		horus.CheckErr(cmd.MarkFlagRequired("files"))
+
+		cmd.PersistentFlags().BoolVarP(&rootFlags.verbose, "verbose", "v", false, "Enable verbose diagnostics")
+		cmd.Version = VERSION
+
+		rootCmd = cmd
 	})
 	return rootCmd
 }
@@ -78,6 +85,10 @@ func Execute() {
 
 type rootFlag struct {
 	verbose bool
+	inPath  string
+	outPath string
+	outFile string
+	inFiles []string
 }
 
 var (
@@ -93,8 +104,21 @@ func BuildCommands() {
 	root.AddCommand(
 		CompletionCmd(),
 		IdentityCmd(),
+	)
+}
 
-		ForgeCmd(),
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func runRoot(cmd *cobra.Command, args []string) {
+	op := "mbombo.forge"
+
+	normalizeForgeOptions(&rootFlags)
+
+	horus.CheckErr(
+		catFiles(rootFlags),
+		horus.WithOp(op),
+		horus.WithMessage("Error during concatenation execution"),
+		horus.WithExitCode(2),
 	)
 }
 
