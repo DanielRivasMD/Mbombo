@@ -16,20 +16,12 @@
   },
   "root": {
     "use": "mbombo",
-    "long": "Forge a unifed product",
-    "example_usages": [
-      [
-        "help"
-      ]
-    ]
-  },
-  "forge": {
-    "use": "forge",
-    "short": "Forge products",
     "long": "Forge by defining the materials, the destination & indicate pieces to replace",
     "example_usages": [
       [
-        "forge",
+        "help"
+      ],
+      [
         "--files",
         "header.html",
         "footer.html",
@@ -37,7 +29,6 @@
         "output/page.html"
       ],
       [
-        "forge",
         "--files",
         "config.tmpl",
         "--out",
@@ -47,7 +38,6 @@
         "API_URL=https://api.example.com"
       ],
       [
-        "forge",
         "--in",
         "templates/",
         "--files",
@@ -60,7 +50,6 @@
         "{{AUTHOR}}=Daniel:token"
       ],
       [
-        "forge",
         "--files",
         "script.js",
         "--out",
@@ -69,7 +58,6 @@
         "console.log=:line"
       ],
       [
-        "forge",
         "--files",
         "README.md",
         "--out",
