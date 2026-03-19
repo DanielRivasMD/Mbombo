@@ -64,25 +64,25 @@ Forge unified products from templates with intelligent text replacement
     │                                                                             │
     │  ╔═══════════════════════════════════════════════════════════════════════╗  │
     │  ║  Template Processing                                                  ║  │
-    │  ║  mbombo forge --files template.tmpl --out config.txt \                ║  │
+    │  ║  mbombo --files template.tmpl --out config.txt \                      ║  │
     │  ║      --replace VERSION=1.0.0,API_URL=https://api.example.com          ║  │
     │  ╚═══════════════════════════════════════════════════════════════════════╝  │
     │                                                                             │
     │  ╔═══════════════════════════════════════════════════════════════════════╗  │
     │  ║  File Concatenation                                                   ║  │
-    │  ║  mbombo forge --files header.html body.html footer.html \             ║  │
+    │  ║  mbombo --files header.html body.html footer.html       \             ║  │
     │  ║      --out website/page.html                                          ║  │
     │  ╚═══════════════════════════════════════════════════════════════════════╝  │
     │                                                                             │
     │  ╔═══════════════════════════════════════════════════════════════════════╗  │
     │  ║  Code Cleanup                                                         ║  │
-    │  ║  mbombo forge --files script.js --out script.min.js \                 ║  │
+    │  ║  mbombo --files script.js --out script.min.js \                       ║  │
     │  ║      --replace console.log=:line,DEBUG=false                          ║  │
     │  ╚═══════════════════════════════════════════════════════════════════════╝  │
     │                                                                             │
     │  ╔═══════════════════════════════════════════════════════════════════════╗  │
     │  ║  Version Bumping                                                      ║  │
-    │  ║  mbombo forge --files README.md --out README.md \                     ║  │
+    │  ║  mbombo --files README.md --out README.md \                           ║  │
     │  ║      --replace v0.0.0=v1.2.3                                          ║  │
     │  ╚═══════════════════════════════════════════════════════════════════════╝  │
     │                                                                             │
