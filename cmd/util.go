@@ -226,7 +226,6 @@ var (
 	replacePairs replaceFlags
 )
 
-// TODO: add tab completion?
 type replacement struct {
 	old  string // anchor or token
 	new  string // full replacement string
