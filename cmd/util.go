@@ -30,7 +30,8 @@ import (
 	"github.com/DanielRivasMD/horus"
 )
 
-// //////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func applyReplacements(content string, reps []replacement) string {
 	lines := strings.Split(content, "\n")
 
@@ -52,7 +53,7 @@ func applyReplacements(content string, reps []replacement) string {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func catFiles(options forgeFlag) error {
+func catFiles(options rootFlag) error {
 	op := "cat"
 
 	overwrite := false
@@ -146,7 +147,7 @@ func catFiles(options forgeFlag) error {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func normalizeForgeOptions(opts *forgeFlag) {
+func normalizeForgeOptions(opts *rootFlag) {
 	if len(opts.inFiles) == 1 {
 		full := opts.inFiles[0]
 		dir := filepath.Dir(full)
@@ -222,16 +223,8 @@ func (r *replaceFlags) Type() string {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-	forgeFlags   forgeFlag
 	replacePairs replaceFlags
 )
-
-type forgeFlag struct {
-	inPath  string
-	outPath string
-	outFile string
-	inFiles []string
-}
 
 // TODO: add tab completion?
 type replacement struct {
