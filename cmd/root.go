@@ -36,7 +36,7 @@ var docsFS embed.FS
 
 const (
 	APP     = "mbombo"
-	VERSION = "v1.1.0"
+	VERSION = "v2.0.0"
 	AUTHOR  = "Daniel Rivas"
 	EMAIL   = "<danielrivasmd@gmail.com>"
 )
